@@ -34,7 +34,8 @@ async function adminProxy(table: string, operation: string, payload: Record<stri
     const err = await res.text()
     throw new Error(`Admin proxy error: ${err}`)
   }
-  return res.json()
+  const result = await res.json()
+  return result.data ?? result
 }
 
 // ============================================
