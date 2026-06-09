@@ -10,13 +10,25 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 // Admin proxy — usa Edge Function para escrita
 // ============================================
 async function adminProxy(table: string, operation: string, payload: Record<string, unknown>) {
+  // Edge Function expects: { table, operation, data, id }
+  const { id, ...data } = payload
+  const body: Record<string, unknown> = { table, operation }
+  if (operation === 'insert') {
+    body.data = payload
+  } else if (operation === 'update') {
+    body.id = id
+    body.data = data
+  } else if (operation === 'delete') {
+    body.id = id
+  }
+
   const res = await fetch(EDGE_FUNCTION_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_ANON_KEY,
     },
-    body: JSON.stringify({ table, operation, payload }),
+    body: JSON.stringify(body),
   })
   if (!res.ok) {
     const err = await res.text()
