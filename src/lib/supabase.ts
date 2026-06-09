@@ -90,6 +90,7 @@ export interface Membro {
   status: 'ativo' | 'inativo' | 'Ativo' | 'Inativo' | 'Pendente'
   eventos_participados?: number
   data_entrada: string
+  auth_user_id?: string
   created_at: string
 }
 
@@ -121,6 +122,16 @@ export async function getMembros() {
   const { data, error } = await supabase.from('membros').select('*').order('nome')
   if (error) throw error
   return data as Membro[]
+}
+
+export async function getMembroByAuthUserId(authUserId: string) {
+  const { data, error } = await supabase
+    .from('membros')
+    .select('*')
+    .eq('auth_user_id', authUserId)
+    .maybeSingle()
+  if (error) throw error
+  return data as Membro | null
 }
 
 // ============================================
